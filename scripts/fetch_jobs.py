@@ -552,11 +552,18 @@ def main() -> int:
         if mode:
             custom = keyword_regex(src["keywords"]) if src.get("keywords") else None
             rx = custom or (role_re if mode == "role" else topic_re)
-            if mode == "role":
+            if mode == "not_ops":
+                # welfare NGOs: keep policy, science, vet, programme roles; drop operational ones
+                txt = lambda j: j["title"]
+                ops = keyword_regex(cfg.get("ops_keywords", []))
+                got = [j for j in got if not (ops and ops.search(j["title"]))]
+                rx = None
+            elif mode == "role":
                 txt = lambda j: j["title"]
             else:
                 txt = lambda j: j.get("_text") or f"{j['title']} {j.get('employer', '')}"
-            got = [j for j in got if rx and rx.search(txt(j)) and not (exclude and exclude.search(txt(j)))]
+            if rx is not None or mode != "not_ops":
+                got = [j for j in got if rx and rx.search(txt(j)) and not (exclude and exclude.search(txt(j)))]
         log(f"  {raw} found, {len(got)} kept" + "".join(f"\n    · {j['title'][:90]}" for j in got[:5]))
         g["status"].append({"source": src["name"], "ok": ok, "count": len(got),
                             "url": src.get("home") or src["url"]})
