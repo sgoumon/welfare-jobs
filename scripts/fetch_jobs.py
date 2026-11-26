@@ -40,10 +40,17 @@ def log(msg: str) -> None:
     print(msg, file=sys.stderr, flush=True)
 
 
+BOT_CHECK = ("request is being verified", "checking your browser", "verify you are human",
+             "<title>just a moment...</title>", "attention required! | cloudflare")
+
+
 def fetch(url: str) -> str:
     SESSION.headers["User-Agent"] = SETTINGS.get("user_agent", "AWS-Toolbox-JobBoard/1.0")
     r = SESSION.get(url, timeout=30)
     r.raise_for_status()
+    head = r.text[:6000].lower()
+    if any(k in head for k in BOT_CHECK) and len(r.text) < 60000:
+        raise RuntimeError("site showed a bot-check page instead of its content")
     time.sleep(float(SETTINGS.get("request_delay_seconds", 1.5)))
     return r.text
 
@@ -531,6 +538,10 @@ def main() -> int:
             log(f"  ! {src['name']} failed: {exc}  (keeping previous listings)")
             got = [j for j in previous_list if j.get("source") == src["name"]]
             ok = False
+        prev_from_src = [j for j in previous_list if j.get("source") == src["name"]]
+        if ok and not got and len(prev_from_src) >= 5 and not src.get("trial"):
+            log(f"  ! {src['name']} returned nothing (had {len(prev_from_src)} before) – keeping previous listings")
+            got, ok = prev_from_src, False
         if ok and src.get("accumulate"):
             # feeds that only show the newest N items: keep earlier items until they expire
             ids = {j["id"] for j in got}
