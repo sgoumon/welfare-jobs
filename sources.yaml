@@ -1,0 +1,275 @@
+# Sources for the Animal Welfare Science job board.
+#
+# kind:    rss     – any RSS/Atom feed (most robust; prefer these)
+#          isae    – ISAE "Opportunities in applied animal behaviour science" pages
+#          awrn    – AWRN jobs / PhD listing pages
+#          links   – generic static careers page: every link whose text looks like a job title
+#          blocks  – page where each position is a heading followed by text (e.g. ISBE)
+#          bluesky – posts from a Bluesky account (url = the handle)
+#          sheet   – a Google Sheet (Form responses) published as CSV
+#
+# filter:  false   – keep everything (curated welfare/behaviour lists)
+#          topic   – keep posts matching `keywords` (welfare/behaviour topics) – for broad job feeds
+#          role    – keep posts matching `role_keywords` (research/science roles) – for NGO/organisation
+#                    pages, so fundraising, admin etc. are left out
+#          A source can also have its own `keywords:` list, which then replaces the shared one.
+# trial:   true    – results go to docs/trial.json (review page: <site>/?data=trial.json), NOT the
+#                    public list. Promote a source by deleting `trial: true` once its results look right.
+# accumulate: true – the feed only shows the newest items; keep earlier ones until they expire.
+# enabled: false   – switched off.
+
+settings:
+  max_age_days_without_deadline: 90
+  request_delay_seconds: 1.5
+  user_agent: "AWS-Toolbox-JobBoard/1.0 (+https://www.sebastiengoumon.com)"
+
+keywords:          # topic filter (whole words; * = prefix)
+  - animal welfare
+  - welfare science
+  - etholog*
+  - animal behaviour
+  - animal behavior
+  - behavioural ecology
+  - behavioral ecology
+  - animal cognition
+  - livestock
+  - farm animal*
+  - dairy
+  - pig*
+  - poultry
+  - broiler*
+  - laying hen*
+  - aquaculture
+  - fish welfare
+  - laboratory animal*
+  - 3Rs
+  - zoo
+  - companion animal*
+  - wild animal*
+  - one welfare
+  - precision livestock
+  - tierwohl
+  - tierschutz
+  - bien-être animal
+  - bienestar animal
+  - bem-estar animal
+
+role_keywords:     # role filter for organisation pages
+  - scien*
+  - research*
+  - analyst
+  - data
+  - etholog*
+  - behaviour*
+  - behavior*
+  - welfare
+  - veterinar*
+  - PhD
+  - postdoc*
+  - fellow*
+  - 3Rs
+  - evaluation
+  - MEL
+  - statistic*
+  - epidemiolog*
+
+exclude_keywords:
+  - social welfare
+  - child welfare
+  - student welfare
+  - fundrais*
+  - volunteer
+
+sources:
+  # ---------------------------------------------------------------- public list (checked)
+  - name: ISAE
+    kind: isae
+    url: https://www.applied-ethology.org/download1202.html
+    home: https://www.applied-ethology.org/
+    fetch_details: true
+    max_pages: 10
+
+  - name: AWRN jobs
+    kind: awrn
+    url: https://awrn.co.uk/animal-welfare-jobs/
+    home: https://awrn.co.uk/animal-welfare-jobs/
+
+  - name: AWRN PhDs
+    kind: awrn
+    url: https://awrn.co.uk/animal-welfare-phd-listing/
+    home: https://awrn.co.uk/animal-welfare-phd-listing/
+    default_type: PhD
+
+  # Covers many advocacy/research NGOs (e.g. Mercy For Animals, The Humane League, Shrimp Welfare
+  # Project, Sinergia) – but mostly non-research roles, hence the role filter.
+  - name: Animal Advocacy Careers
+    kind: rss
+    url: https://www.animaladvocacycareers.org/?feed=job_feed
+    home: https://www.animaladvocacycareers.org/job-board
+    filter: role
+    accumulate: true
+
+  - name: MPI Animal Behavior
+    kind: rss
+    url: https://www.ab.mpg.de/feeds/jobs.rss
+    home: https://www.ab.mpg.de/322153/job-offers
+    employer: Max Planck Institute of Animal Behavior
+    default_country: Germany
+
+  # jobs.ac.uk – right-click each "RSS Feed" link on their subject pages → Copy link → paste here
+  - name: jobs.ac.uk – Veterinary Science
+    kind: rss
+    url: ""
+    home: https://www.jobs.ac.uk/
+    default_country: United Kingdom
+    filter: topic
+  - name: jobs.ac.uk – Zoology
+    kind: rss
+    url: ""
+    home: https://www.jobs.ac.uk/
+    default_country: United Kingdom
+    filter: topic
+  - name: jobs.ac.uk – Agriculture
+    kind: rss
+    url: ""
+    home: https://www.jobs.ac.uk/
+    default_country: United Kingdom
+    filter: topic
+
+  - name: Submitted
+    kind: sheet
+    url: ""                     # published CSV of the Google Form responses
+    home: ""
+
+  # ---------------------------------------------------------------- trial (review first)
+  - name: Animal Behavior Opportunities (Bluesky)
+    kind: bluesky
+    url: animalopps.bsky.social
+    home: https://bsky.app/profile/animalopps.bsky.social
+    accumulate: true
+    trial: true
+
+  - name: ISBE positions
+    kind: blocks
+    url: https://behavecol.com/positions
+    home: https://behavecol.com/positions
+    trial: true
+
+  - name: ASAB
+    kind: links
+    url: https://www.asab.org/vacancies
+    home: https://www.asab.org/vacancies
+    trial: true
+
+  - name: Animal Behavior Society
+    kind: links
+    url: https://www.animalbehaviorsociety.org/web/news.php
+    home: https://www.animalbehaviorsociety.org/
+    trial: true
+
+  - name: UFAW
+    kind: links
+    url: https://ufaw.org.uk/about-ufaw/employment-opportunities
+    home: https://ufaw.org.uk/
+    employer: UFAW
+    default_country: United Kingdom
+    trial: true
+
+  - name: RSPCA
+    kind: links
+    url: https://jobs.rspca.org.uk/
+    home: https://jobs.rspca.org.uk/
+    employer: RSPCA
+    default_country: United Kingdom
+    filter: role
+    trial: true
+
+  - name: Compassion in World Farming
+    kind: links
+    url: https://www.ciwf.org.uk/jobs
+    home: https://www.ciwf.org.uk/jobs
+    employer: Compassion in World Farming
+    filter: role
+    trial: true
+
+  - name: NC3Rs
+    kind: links
+    url: https://nc3rs.org.uk/about-us/careers
+    home: https://nc3rs.org.uk/about-us/careers
+    employer: NC3Rs
+    default_country: United Kingdom
+    trial: true
+
+  - name: Rethink Priorities
+    kind: links
+    url: https://rethinkpriorities.org/careers
+    home: https://rethinkpriorities.org/careers
+    employer: Rethink Priorities
+    filter: role
+    trial: true
+
+  - name: Wild Animal Initiative
+    kind: links
+    url: https://www.wildanimalinitiative.org/careers
+    home: https://www.wildanimalinitiative.org/careers
+    employer: Wild Animal Initiative
+    trial: true
+
+  - name: Faunalytics
+    kind: links
+    url: https://faunalytics.org/culture/
+    home: https://faunalytics.org/culture/
+    employer: Faunalytics
+    filter: role
+    trial: true
+
+  - name: Animal Charity Evaluators
+    kind: links
+    url: https://animalcharityevaluators.org/about/careers/
+    home: https://animalcharityevaluators.org/about/careers/
+    employer: Animal Charity Evaluators
+    filter: role
+    trial: true
+
+  - name: Humane World for Animals (HumanePro)
+    kind: links
+    url: https://humanepro.org/jobs
+    home: https://humanepro.org/jobs
+    filter: role
+    trial: true
+
+  - name: Sinergia Animal
+    kind: links
+    url: https://sinergiaanimal.org/careers
+    home: https://sinergiaanimal.org/careers
+    employer: Sinergia Animal
+    filter: role
+    trial: true
+
+  - name: FiBL
+    kind: links
+    url: https://www.fibl.org/en/jobs
+    home: https://www.fibl.org/en/jobs
+    employer: FiBL
+    filter: topic
+    trial: true
+
+  - name: INRAE
+    kind: links
+    url: https://jobs.inrae.fr/
+    home: https://jobs.inrae.fr/
+    employer: INRAE
+    default_country: France
+    filter: topic
+    trial: true
+
+  # ---------------------------------------------------------------- need the exact jobs-page URL
+  # Only a homepage was known. Paste the page that lists vacancies, then set enabled: true.
+  - {name: Welfare Footprint Institute, kind: links, url: "", home: "https://welfarefootprint.org", filter: role, trial: true, enabled: false}
+  - {name: Swiss 3R Competence Centre,  kind: links, url: "", home: "https://swiss3rcc.org", trial: true, enabled: false}
+  - {name: Agroscope,                   kind: links, url: "", home: "https://www.agroscope.admin.ch", filter: topic, default_country: Switzerland, trial: true, enabled: false}
+  - {name: Vetsuisse Bern – Animal Welfare, kind: links, url: "", home: "https://www.vetsuisse.unibe.ch", filter: topic, default_country: Switzerland, trial: true, enabled: false}
+  - {name: Vetmeduni Vienna,            kind: links, url: "", home: "https://www.vetmeduni.ac.at", filter: topic, default_country: Austria, trial: true, enabled: false}
+  - {name: FBN Dummerstorf,             kind: links, url: "", home: "https://www.fbn-dummerstorf.de", filter: topic, default_country: Germany, trial: true, enabled: false}
+  - {name: SLU,                         kind: links, url: "", home: "https://www.slu.se", filter: topic, default_country: Sweden, trial: true, enabled: false}
+  - {name: Fórum Animal,                kind: links, url: "", home: "https://forumanimal.org", filter: role, default_country: Brazil, trial: true, enabled: false}

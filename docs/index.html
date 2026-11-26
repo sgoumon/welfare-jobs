@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animal Welfare Science – Open Positions</title>
+<style>
+  :root{
+    --ink:#1f2a24; --muted:#5f6b64; --line:#dfe5e1; --bg:#ffffff; --soft:#f4f7f5;
+    --accent:#2f6b4f; --accent-soft:#e3efe8; --warn:#a4481f; --warn-soft:#fbeae2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg)}
+  .wrap{max-width:980px;margin:0 auto;padding:20px 16px 40px}
+  header h1{font-size:1.45rem;margin:0 0 4px}
+  header p{margin:0;color:var(--muted)}
+  .controls{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;margin:18px 0 8px}
+  .controls input,.controls select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+  .controls input:focus,.controls select:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+  .bar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;color:var(--muted);font-size:.9rem;margin-bottom:10px}
+  .bar label{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+  .bar select{border:1px solid var(--line);border-radius:6px;padding:3px 6px;font:inherit;background:#fff}
+  .list{display:flex;flex-direction:column;gap:10px}
+  .job{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:4px 14px;background:#fff}
+  .job:hover{border-color:#b9c7bf}
+  .job h2{font-size:1.02rem;margin:0;line-height:1.35}
+  .job h2 a{color:var(--ink);text-decoration:none}
+  .job h2 a:hover{color:var(--accent);text-decoration:underline}
+  .meta{color:var(--muted);font-size:.9rem}
+  .meta span+span::before{content:" · "}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+  .tag{font-size:.78rem;padding:1px 8px;border-radius:999px;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+  .tag.type{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+  .dl{grid-row:1 / span 2;grid-column:2;text-align:right;white-space:nowrap;align-self:start}
+  .dl b{display:block;font-size:.95rem}
+  .dl small{color:var(--muted)}
+  .dl.soon b{color:var(--warn)}
+  .dl.none b{color:var(--muted);font-weight:500}
+  .src{font-size:.8rem;color:var(--muted)}
+  .src a{color:var(--muted)}
+  .fresh{margin-top:8px;font-size:.88rem;color:var(--muted)}
+  .fresh b{color:var(--ink);font-weight:600}
+  .stale{margin:12px 0 0;padding:9px 12px;border-radius:8px;background:var(--warn-soft);color:var(--warn);font-size:.9rem}
+  .empty{padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px}
+  footer{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+  footer a{color:var(--accent)}
+  .btn{display:inline-block;padding:7px 12px;border-radius:8px;background:var(--accent);color:#fff!important;text-decoration:none;font-size:.9rem}
+  @media (max-width:700px){
+    .controls{grid-template-columns:1fr 1fr}
+    .controls .q{grid-column:1 / -1}
+    .job{grid-template-columns:1fr}
+    .dl{grid-row:auto;grid-column:1;text-align:left}
+    .dl b{display:inline;margin-right:6px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Open positions in animal welfare science</h1>
+    <p>PhD, postdoc, faculty, NGO and industry roles, gathered from field-specific job lists. Always check the original advert before applying.</p>
+    <p class="fresh">Updated automatically once a day (early morning, Central European Time) · <span id="lastrun">Last update: loading…</span></p>
+    <p class="stale" id="stale" hidden></p>
+  </header>
+
+  <div class="controls">
+    <input class="q" id="q" type="search" placeholder="Search title, employer, species, country…" aria-label="Search">
+    <select id="type" aria-label="Position type"><option value="">All position types</option></select>
+    <select id="country" aria-label="Country"><option value="">All countries</option></select>
+    <select id="source" aria-label="Source"><option value="">All sources</option></select>
+  </div>
+
+  <div class="bar">
+    <span id="count">Loading…</span>
+    <span>
+      <label><input type="checkbox" id="dated"> Only with a stated deadline</label>
+      &nbsp; Sort
+      <select id="sort" aria-label="Sort">
+        <option value="deadline">Deadline (soonest)</option>
+        <option value="new">Newest first</option>
+      </select>
+    </span>
+  </div>
+
+  <div class="list" id="list"></div>
+
+  <footer>
+    <p>
+      <a class="btn" id="submit" href="#" target="_blank" rel="noopener">Submit a vacancy</a>
+    </p>
+    <p id="sources"></p>
+    <p>Deadlines are read automatically from each advert and may occasionally be wrong or missing. Listings without a stated deadline are removed 90 days after they first appear. Listings are not endorsed by this site or by the source lists.</p>
+    <p id="updated"></p>
+  </footer>
+</div>
+
+<script>
+// ---- Settings you can edit -------------------------------------------------
+const SUBMIT_FORM_URL = "";   // paste your Google Form link here; the button hides while empty
+const SOON_DAYS = 10;         // highlight deadlines within this many days
+const STALE_DAYS = 3;         // show a warning if the list hasn't refreshed for this many days
+// ---------------------------------------------------------------------------
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safeUrl = u => /^https?:\/\//i.test(u || "") ? u : "#";
+let JOBS = [];
+
+const COUNTRY_ALIASES = {"uk":"United Kingdom","u.k.":"United Kingdom","england":"United Kingdom","scotland":"United Kingdom","wales":"United Kingdom",
+  "usa":"United States","us":"United States","u.s.":"United States","united states of america":"United States","the netherlands":"Netherlands"};
+const normCountry = c => { c = (c || "").trim(); return COUNTRY_ALIASES[c.toLowerCase()] || c; };
+
+function daysLeft(iso){
+  const t = new Date(); t.setHours(0,0,0,0);
+  return Math.round((new Date(iso + "T00:00:00") - t) / 86400000);
+}
+function fmtDate(iso){
+  return new Date(iso + "T00:00:00").toLocaleDateString("en-GB", {day:"numeric", month:"short", year:"numeric"});
+}
+function fillSelect(sel, values){
+  [...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b))
+    .forEach(v => sel.insertAdjacentHTML("beforeend", `<option>${esc(v)}</option>`));
+}
+
+function render(){
+  const q = $("q").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const type = $("type").value, country = $("country").value, source = $("source").value;
+  const dated = $("dated").checked, sort = $("sort").value;
+
+  let rows = JOBS.filter(j =>
+    (!type || j.type === type) &&
+    (!country || j.country === country) &&
+    (!source || j.source === source || (j.also_on || []).includes(source)) &&
+    (!dated || j.deadline) &&
+    q.every(w => j._hay.includes(w))
+  );
+  rows.sort(sort === "new"
+    ? (a,b) => (b.posted || b.first_seen || "").localeCompare(a.posted || a.first_seen || "")
+    : (a,b) => (a.deadline || "9999").localeCompare(b.deadline || "9999"));
+
+  $("count").textContent = `${rows.length} open position${rows.length === 1 ? "" : "s"}` +
+    (rows.length !== JOBS.length ? ` (of ${JOBS.length})` : "");
+
+  $("list").innerHTML = rows.length ? rows.map(j => {
+    let dl;
+    if (j.deadline){
+      const d = daysLeft(j.deadline);
+      const when = d === 0 ? "closes today" : d === 1 ? "1 day left" : `${d} days left`;
+      dl = `<div class="dl ${d <= SOON_DAYS ? "soon" : ""}"><b>${fmtDate(j.deadline)}</b><small>${when}</small></div>`;
+    } else {
+      dl = `<div class="dl none"><b>Deadline not stated</b><small>see advert</small></div>`;
+    }
+    const meta = [j.employer, j.country].filter(Boolean).map(x => `<span>${esc(x)}</span>`).join("");
+    const also = (j.also_on || []).length ? ` (also on ${j.also_on.map(esc).join(", ")})` : "";
+    return `<article class="job">
+      <h2><a href="${esc(safeUrl(j.url))}" target="_blank" rel="noopener">${esc(j.title)}</a></h2>
+      ${dl}
+      <div>
+        ${meta ? `<div class="meta">${meta}</div>` : ""}
+        <div class="tags"><span class="tag type">${esc(j.type)}</span></div>
+        <div class="src">Listed by <a href="${esc(safeUrl(j.source_url))}" target="_blank" rel="noopener">${esc(j.source)}</a>${also}</div>
+      </div>
+    </article>`;
+  }).join("") : `<div class="empty">No open positions match these filters.</div>`;
+}
+
+async function init(){
+  if (SUBMIT_FORM_URL) $("submit").href = SUBMIT_FORM_URL; else $("submit").parentElement.style.display = "none";
+  try{
+    // ?data=trial.json shows the review list of trial sources (not linked from anywhere)
+    const file = new URLSearchParams(location.search).get("data") === "trial.json" ? "trial.json" : "jobs.json";
+    if (file === "trial.json") document.querySelector("header h1").textContent = "Review: trial sources (not public)";
+    const res = await fetch(file + "?v=" + Date.now());
+    const data = await res.json();
+    JOBS = data.jobs.map(j => ({...j, country: normCountry(j.country),
+      _hay: [j.title, j.employer, j.country, j.type, j.source].join(" ").toLowerCase()}));
+    fillSelect($("type"), JOBS.map(j => j.type));
+    fillSelect($("country"), JOBS.map(j => j.country));
+    fillSelect($("source"), JOBS.flatMap(j => [j.source, ...(j.also_on || [])]));
+    const upd = new Date(data.updated);
+    const updText = upd.toLocaleString("en-GB", {day:"numeric", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit", timeZone:"Europe/Zurich"});
+    // "CET" in winter, "CEST" in summer – decided by the browser for that date
+    const tz = (new Intl.DateTimeFormat("en-GB", {timeZone:"Europe/Zurich", timeZoneName:"short"})
+      .formatToParts(upd).find(x => x.type === "timeZoneName") || {}).value || "CET";
+    const ageDays = (Date.now() - upd) / 86400000;
+    const ago = ageDays < 1 ? "today" : ageDays < 2 ? "yesterday" : `${Math.floor(ageDays)} days ago`;
+    $("lastrun").innerHTML = `Last update: <b>${esc(ago)}</b> (${esc(updText)} ${esc(tz)})`;
+    $("updated").textContent = `Last updated ${updText} ${tz}.`;
+    if (ageDays > STALE_DAYS){
+      $("stale").hidden = false;
+      $("stale").textContent = `This list has not been refreshed since ${updText} ${tz}. Some positions may have closed, so please check each advert's deadline.`;
+    }
+    $("sources").innerHTML = "Sources: " + data.sources.map(s =>
+      `<a href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener">${esc(s.source)}</a>${s.ok ? "" : " (temporarily unavailable)"}`).join(" · ");
+    ["q","type","country","source","dated","sort"].forEach(id => $(id).addEventListener("input", render));
+    render();
+  }catch(e){
+    $("count").textContent = "";
+    $("list").innerHTML = `<div class="empty">The job list could not be loaded. Please try again later.</div>`;
+  }
+}
+init();
+</script>
+</body>
+</html>
