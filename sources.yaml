@@ -147,6 +147,8 @@ sources:
     url: animalopps.bsky.social
     home: https://bsky.app/profile/animalopps.bsky.social
     accumulate: true
+    filter: topic
+    keywords: [behav*, cognit*, welfare, etholog*, animal*, livestock, primate*, zoo, sentien*]
     trial: true
 
   - name: ISBE positions
@@ -160,12 +162,13 @@ sources:
     url: https://www.asab.org/vacancies
     home: https://www.asab.org/vacancies
     trial: true
+    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: Animal Behavior Society
     kind: links
     url: https://www.animalbehaviorsociety.org/web/news.php
     home: https://www.animalbehaviorsociety.org/
-    trial: true
+    # promoted to the public list after the first run (26 Nov 2026): clean, real positions
 
   - name: UFAW
     kind: links
@@ -174,6 +177,7 @@ sources:
     employer: UFAW
     default_country: United Kingdom
     trial: true
+    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: RSPCA
     kind: links
@@ -191,6 +195,7 @@ sources:
     employer: Compassion in World Farming
     filter: role
     trial: true
+    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: NC3Rs
     kind: links
@@ -199,6 +204,7 @@ sources:
     employer: NC3Rs
     default_country: United Kingdom
     trial: true
+    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: Rethink Priorities
     kind: links
@@ -207,6 +213,7 @@ sources:
     employer: Rethink Priorities
     filter: role
     trial: true
+    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: Wild Animal Initiative
     kind: links
@@ -230,6 +237,7 @@ sources:
     employer: Animal Charity Evaluators
     filter: role
     trial: true
+    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: Humane World for Animals (HumanePro)
     kind: links
@@ -237,6 +245,7 @@ sources:
     home: https://humanepro.org/jobs
     filter: role
     trial: true
+    enabled: false   # first run: shelter/clinic jobs, not research
 
   - name: Sinergia Animal
     kind: links
@@ -253,6 +262,7 @@ sources:
     employer: FiBL
     filter: topic
     trial: true
+    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: INRAE
     kind: links
