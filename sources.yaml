@@ -156,6 +156,7 @@ sources:
     url: https://behavecol.com/positions
     home: https://behavecol.com/positions
     trial: true
+    enabled: false   # first run: page layout not recognised (headings are tabs, not positions)
 
   - name: ASAB
     kind: links
