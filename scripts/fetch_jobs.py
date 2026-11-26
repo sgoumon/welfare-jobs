@@ -234,10 +234,17 @@ def parse_isae(src: dict, previous: dict) -> list[dict]:
             if prev and prev.get("_details_checked"):
                 j["deadline"] = prev.get("deadline")
                 j["employer"] = prev.get("employer", "")
+                j["title"] = prev.get("title") or j["title"]
                 j["_details_checked"] = True
                 continue
             try:
                 detail = BeautifulSoup(fetch(j["url"]), "html.parser")
+                # ISAE's list only says "PhD, USA"; the advert's first heading is the real title
+                for h in detail.find_all(["h1", "h2", "h3", "h4", "strong", "b"]):
+                    ht = clean(h.get_text(" "))
+                    if 15 <= len(ht) <= 250 and not re.search(r"opportunities in applied|isae|apply for membership", ht, re.I):
+                        j["title"] = ht
+                        break
                 body = clean(detail.get_text(" "))
                 d = find_deadline(body)
                 j["deadline"] = d.isoformat() if d else None
@@ -256,45 +263,69 @@ def content_area(soup: BeautifulSoup):
             or soup.find("main") or soup.find("article") or soup.body or soup)
 
 
+def page_lines(content) -> list[str]:
+    """Visible text of an element split into the lines a reader sees (on <br> and block ends)."""
+    for br in content.find_all("br"):
+        br.replace_with("\n")
+    for blk in content.find_all(["p", "div", "li", "h1", "h2", "h3", "h4", "h5", "h6", "tr"]):
+        blk.append("\n")
+    return [clean(x) for x in content.get_text().split("\n") if clean(x)]
+
+
 def parse_awrn(src: dict, previous: dict) -> list[dict]:
-    """AWRN job and PhD pages: blocks of
-         Deadline 27th November 2026           (or a 'No deadline stated/specified' line/heading)
-         Organisation (Country) – [Job title](link)     (PhD page: '– PhD in: [Title](link)')
-    Read block by block (paragraphs, list items, headings); a deadline marker sets the current
-    deadline, and the first external link in each block is one listing."""
+    """AWRN job and PhD pages, read as lines of text:
+         Deadline 27th November 2026                      (or 'No deadline stated/specified')
+         Organisation (Country) – Job title               (PhD page: '– PhD in: Title')
+    The job title is the text of a link to the advert; we match each line to the link it contains.
+    Independent of the page's HTML layout (works whether entries use <p>, <br>, <strong> or lists)."""
     page = src["url"]
-    soup = BeautifulSoup(fetch(page), "html.parser")
-    content = content_area(soup)
+    html = fetch(page)
+    jobs, lines = _awrn_from(html, page, src, whole_page=False)
+    if not jobs:   # the guessed content area may be wrong: retry on the whole page
+        jobs, lines = _awrn_from(html, page, src, whole_page=True)
+    if not jobs:
+        log("  ? AWRN: no entries recognised. First lines of the page text, for diagnosis:")
+        for l in lines[:25]:
+            log("    | " + l[:160])
+    return jobs
+
+
+def _awrn_from(html: str, page: str, src: dict, whole_page: bool):
+    soup = BeautifulSoup(html, "html.parser")
+    for bad in soup.find_all(["nav", "footer", "header", "script", "style", "aside"]):
+        bad.decompose()
+    content = (soup.body or soup) if whole_page else content_area(soup)
     site_host = urlparse(page).netloc
+    links = {}
+    for a in content.find_all("a", href=True):
+        t, h = clean(a.get_text(" ")), urljoin(page, a["href"])
+        if len(t) >= 4 and h.startswith("http") and urlparse(h).netloc != site_host:
+            links.setdefault(t, h)
+    lines = page_lines(content)
     jobs, current, started = [], None, False
-    for block in content.find_all(["p", "li", "h2", "h3", "h4", "div"]):
-        if block.find(["p", "li", "div"]):        # only innermost blocks
-            continue
-        if block.find_parent("footer") or block.find_parent("nav"):
-            continue
-        text = clean(block.get_text(" "))
-        if AWRN_MARKER.match(text):
+    for line in lines:
+        m = AWRN_MARKER.search(line)
+        if m and m.start() < 3:
             started = True
-            current = None if text.lower().startswith("no deadline") else find_deadline(text)
-        if not started:
+            current = None if line.lower().startswith("no deadline") else find_deadline(line)
+            # entry may continue on the same line after the date
+            line = re.sub(r"(?i)^\s*(deadline\s*:?\s*\S+\s+\S+\s+\d{4}|no deadline (stated|specified))\s*", "", line)
+        if not started or not line:
             continue
-        a = next((x for x in block.find_all("a", href=True)
-                  if x["href"].startswith("http") and urlparse(x["href"]).netloc != site_host), None)
-        if not a or not clean(a.get_text()):
+        title = max((t for t in links if t in line), key=len, default=None)
+        if not title:
             continue
-        title = clean(a.get_text())
-        before = text.split(title)[0]
-        before = re.sub(r"(?i)^.*?(deadline\s+\S+\s+\S+\s+\d{4}|no deadline (stated|specified))", "", before)
-        before = re.sub(r"(?i)\bphd\s+in\s*:?", "", before).strip(" –-:|")
+        before = line.split(title)[0]
+        before = re.sub(r"(?i)\bphd\s+in\s*:?", "", before).strip(" –—-:|")
         if not before:      # real entries always start with "Organisation (Country) –"
             continue
         country = ""
-        m = re.search(r"\(([^()]+)\)\s*$", before)
-        if m:
-            country = m.group(1)
-            before = before[: m.start()].strip()
-        jobs.append(make_job(src, title, a["href"], employer=before, country=country, deadline=current))
-    return jobs
+        mc = re.search(r"\(([^()]+)\)\s*$", before)
+        if mc:
+            country = mc.group(1)
+            before = before[: mc.start()].strip()
+        jobs.append(make_job(src, title, links[title], employer=before, country=country, deadline=current))
+    return jobs, lines
 
 
 JOB_WORDS = re.compile(
@@ -403,7 +434,10 @@ def parse_bluesky(src: dict, previous: dict) -> list[dict]:
         if not link and not JOB_WORDS.search(text):
             continue
         first = re.split(r"(?<=[.!?])\s|\n", text)[0]
-        title = (ext.get("title") or first)[:140]
+        ext_title = clean(ext.get("title", ""))
+        junk = (not ext_title or "{{" in ext_title or len(ext_title) < 12
+                or not JOB_WORDS.search(ext_title))
+        title = (first if (junk or JOB_WORDS.search(first)) else ext_title)[:140]
         posted = parse_date(rec.get("createdAt", "")[:10]) if rec.get("createdAt") else None
         jobs.append(make_job(src, title, link or post_url, deadline=find_deadline(text),
                              posted=posted, description=text + " " + ext.get("description", "")))
@@ -489,7 +523,10 @@ def main() -> int:
         if mode:
             custom = keyword_regex(src["keywords"]) if src.get("keywords") else None
             rx = custom or (role_re if mode == "role" else topic_re)
-            txt = lambda j: j.get("_text") or f"{j['title']} {j.get('employer', '')}"
+            if mode == "role":
+                txt = lambda j: j["title"]
+            else:
+                txt = lambda j: j.get("_text") or f"{j['title']} {j.get('employer', '')}"
             got = [j for j in got if rx and rx.search(txt(j)) and not (exclude and exclude.search(txt(j)))]
         log(f"  {raw} found, {len(got)} kept" + "".join(f"\n    · {j['title'][:90]}" for j in got[:5]))
         g["status"].append({"source": src["name"], "ok": ok, "count": len(got),
