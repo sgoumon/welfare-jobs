@@ -203,9 +203,9 @@ sources:
   - name: ASAB
     kind: links
     url: https://www.asab.org/vacancies
-    home: https://www.asab.org/vacancies
+    home: https://www.asab.org/mailing-list
     trial: true
-    enabled: false   # site refused automated access on first run (26 Nov 2026)
+    enabled: false   # ASAB has no vacancies page; jobs go out via its mailing list (jiscmail)
 
   - name: Animal Behavior Society
     kind: links
@@ -220,7 +220,6 @@ sources:
     employer: UFAW
     default_country: United Kingdom
     trial: true
-    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: RSPCA
     kind: links
@@ -233,12 +232,11 @@ sources:
 
   - name: Compassion in World Farming
     kind: links
-    url: https://www.ciwf.org.uk/jobs
-    home: https://www.ciwf.org.uk/jobs
+    url: https://www.ciwf.org/careers-at-compassion
+    home: https://www.ciwf.org/careers-at-compassion
     employer: Compassion in World Farming
     filter: role
     trial: true
-    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: NC3Rs
     kind: links
@@ -247,16 +245,14 @@ sources:
     employer: NC3Rs
     default_country: United Kingdom
     trial: true
-    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: Rethink Priorities
     kind: links
-    url: https://rethinkpriorities.org/careers
-    home: https://rethinkpriorities.org/careers
+    url: https://careers.rethinkpriorities.org/
+    home: https://careers.rethinkpriorities.org/
     employer: Rethink Priorities
     filter: role
     trial: true
-    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: Wild Animal Initiative
     kind: links
@@ -280,7 +276,6 @@ sources:
     employer: Animal Charity Evaluators
     filter: role
     trial: true
-    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: Humane World for Animals (HumanePro)
     kind: links
@@ -305,7 +300,6 @@ sources:
     employer: FiBL
     filter: topic
     trial: true
-    enabled: false   # site refused automated access on first run (26 Nov 2026)
 
   - name: INRAE
     kind: links
@@ -315,6 +309,14 @@ sources:
     default_country: France
     filter: topic
     trial: true
+
+  - name: Welfare Footprint Institute        # public: job links all go to jobs.ashbyhq.com/welfarefootprint/
+    kind: links
+    url: https://welfarefootprint.org/careers
+    home: https://welfarefootprint.org/careers
+    employer: Welfare Footprint Institute
+    link_pattern: ashbyhq\.com/welfarefootprint/
+    filter: not_ops
 
   - name: Eurogroup for Animals
     kind: links
@@ -337,7 +339,6 @@ sources:
 
   # ---------------------------------------------------------------- need the exact jobs-page URL
   # Only a homepage was known. Paste the page that lists vacancies, then set enabled: true.
-  - {name: Welfare Footprint Institute, kind: links, url: "", home: "https://welfarefootprint.org", filter: role, trial: true, enabled: false}
   - {name: Swiss 3R Competence Centre,  kind: links, url: "", home: "https://swiss3rcc.org", trial: true, enabled: false}
   - {name: Agroscope,                   kind: links, url: "", home: "https://www.agroscope.admin.ch", filter: topic, default_country: Switzerland, trial: true, enabled: false}
   - {name: Vetsuisse Bern – Animal Welfare, kind: links, url: "", home: "https://www.vetsuisse.unibe.ch", filter: topic, default_country: Switzerland, trial: true, enabled: false}
