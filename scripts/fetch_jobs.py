@@ -231,11 +231,11 @@ def parse_isae(src: dict, previous: dict) -> list[dict]:
     if src.get("fetch_details"):
         for j in jobs:
             prev = previous.get(j["id"])
-            if prev and prev.get("_details_checked"):
+            if prev and prev.get("_details_v2"):
                 j["deadline"] = prev.get("deadline")
                 j["employer"] = prev.get("employer", "")
                 j["title"] = prev.get("title") or j["title"]
-                j["_details_checked"] = True
+                j["_details_v2"] = True
                 continue
             try:
                 detail = BeautifulSoup(fetch(j["url"]), "html.parser")
@@ -249,7 +249,7 @@ def parse_isae(src: dict, previous: dict) -> list[dict]:
                 d = find_deadline(body)
                 j["deadline"] = d.isoformat() if d else None
                 j["_text"] = clean(j["_text"] + " " + body[:2000])
-                j["_details_checked"] = True
+                j["_details_v2"] = True
             except Exception as exc:  # detail page missing or blocked: keep the listing
                 log(f"  ! ISAE detail failed for {j['url']}: {exc}")
     return jobs
@@ -315,16 +315,29 @@ def _awrn_from(html: str, page: str, src: dict, whole_page: bool):
         title = max((t for t in links if t in line), key=len, default=None)
         if not title:
             continue
+        url = links[title]
         before = line.split(title)[0]
         before = re.sub(r"(?i)\bphd\s+in\s*:?", "", before).strip(" –—-:|")
         if not before:      # real entries always start with "Organisation (Country) –"
             continue
+        parts = re.split(r"\s+[–—]\s+|\s+-\s+", before, maxsplit=1)
+        if re.fullmatch(r"\S+@\S+", title):
+            # only an email contact is given: title = the project text, link = the AWRN list itself
+            if len(parts) < 2:
+                continue
+            title = re.split(r"(?i)\bcontact\b", parts[1])[0].strip(" :;(–-")
+            url = src.get("home") or page
+            before = parts[0]
+        elif len(parts) == 2 and parts[1]:
+            title = f"{parts[1].strip(' :')} – {title}"
+            before = parts[0]
+        before = before.strip(" –—-:|")
         country = ""
         mc = re.search(r"\(([^()]+)\)\s*$", before)
         if mc:
             country = mc.group(1)
             before = before[: mc.start()].strip()
-        jobs.append(make_job(src, title, links[title], employer=before, country=country, deadline=current))
+        jobs.append(make_job(src, title, url, employer=before, country=country, deadline=current))
     return jobs, lines
 
 
@@ -433,7 +446,12 @@ def parse_bluesky(src: dict, previous: dict) -> list[dict]:
         post_url = f"https://bsky.app/profile/{author}/post/{rkey}"
         if not link and not JOB_WORDS.search(text):
             continue
-        first = re.split(r"(?<=[.!?])\s|\n", text)[0]
+        sentences = [x for x in re.split(r"(?<=[.!?])\s+|\n+", text) if x.strip()]
+        first = sentences[0] if sentences else text
+        k = 1
+        while len(first) < 45 and k < len(sentences):     # "Looking for a PhD?" → add the next sentence
+            first = f"{first} {sentences[k]}"
+            k += 1
         ext_title = clean(ext.get("title", ""))
         junk = (not ext_title or "{{" in ext_title or len(ext_title) < 12
                 or not JOB_WORDS.search(ext_title))
