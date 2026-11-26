@@ -12,6 +12,8 @@
 #          topic   – keep posts matching `keywords` (welfare/behaviour topics) – for broad job feeds
 #          role    – keep posts matching `role_keywords` (research/science roles) – for NGO/organisation
 #                    pages, so fundraising, admin etc. are left out
+#          not_ops – keep everything EXCEPT titles matching `ops_keywords` (fundraising, finance, IT…) –
+#                    for welfare NGOs, so policy, programme and vet roles stay in
 #          A source can also have its own `keywords:` list, which then replaces the shared one.
 # trial:   true    – results go to docs/trial.json (review page: <site>/?data=trial.json), NOT the
 #                    public list. Promote a source by deleting `trial: true` once its results look right.
@@ -72,6 +74,45 @@ role_keywords:     # role filter for organisation pages
   - MEL
   - statistic*
   - epidemiolog*
+
+ops_keywords:      # operational roles dropped by filter: not_ops
+  - fundrais*
+  - donor*
+  - legacy
+  - legacies
+  - major gifts
+  - supporter
+  - finance
+  - financial
+  - accountant
+  - accounting
+  - payroll
+  - human resources
+  - HR
+  - recruit*
+  - IT
+  - software
+  - developer
+  - systems
+  - digital
+  - marketing
+  - social media
+  - graphic
+  - designer
+  - office
+  - administrat*
+  - receptionist
+  - assistant to
+  - construction
+  - security
+  - facility
+  - facilities
+  - maintenance
+  - driver
+  - cleaner
+  - caretaker
+  - volunteer
+  - intern
 
 exclude_keywords:
   - social welfare
@@ -150,6 +191,7 @@ sources:
     filter: topic
     keywords: [behav*, cognit*, welfare, etholog*, animal*, livestock, primate*, zoo, sentien*]
     trial: true
+    enabled: false   # switched off on request (26 Nov 2026): too broad for a welfare board
 
   - name: ISBE positions
     kind: blocks
@@ -272,6 +314,25 @@ sources:
     employer: INRAE
     default_country: France
     filter: topic
+    trial: true
+
+  - name: Eurogroup for Animals
+    kind: links
+    url: https://www.eurogroupforanimals.org/who-we-are/jobs
+    home: https://www.eurogroupforanimals.org/who-we-are/jobs
+    employer: Eurogroup for Animals
+    default_country: Belgium
+    link_pattern: /who-we-are/jobs/
+    filter: not_ops
+    trial: true
+
+  - name: FOUR PAWS
+    kind: links
+    url: https://www.four-paws.org/about-us/jobs
+    home: https://www.four-paws.org/about-us/jobs
+    employer: FOUR PAWS
+    link_pattern: /about-us/jobs/
+    filter: not_ops
     trial: true
 
   # ---------------------------------------------------------------- need the exact jobs-page URL
