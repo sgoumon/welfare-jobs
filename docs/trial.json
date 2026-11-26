@@ -1,18 +1,12 @@
 {
- "updated": "2026-11-26T20:40+00:00",
- "count": 39,
+ "updated": "2026-11-26T20:48+00:00",
+ "count": 37,
  "sources": [
   {
    "source": "Animal Behavior Opportunities (Bluesky)",
    "ok": true,
-   "count": 50,
+   "count": 46,
    "url": "https://bsky.app/profile/animalopps.bsky.social"
-  },
-  {
-   "source": "ISBE positions",
-   "ok": true,
-   "count": 5,
-   "url": "https://behavecol.com/positions"
   },
   {
    "source": "RSPCA",
@@ -173,8 +167,8 @@
    "first_seen": "2026-11-26"
   },
   {
-   "id": "af312bd2f755",
-   "title": "I am recruiting 1-2 graduate students (M.S.",
+   "id": "d9e8dfbaefb9",
+   "title": "I am recruiting 1-2 graduate students (M.S. or Ph.D.",
    "employer": "",
    "country": "",
    "type": "PhD",
@@ -299,8 +293,8 @@
    "first_seen": "2026-11-26"
   },
   {
-   "id": "bdac56a9d8f6",
-   "title": "Looking for a PhD?",
+   "id": "0a15c28d8057",
+   "title": "Looking for a PhD? Check out the new Knowing Animals programme, joint hosted by @royalvetcollege.bsky.social and @exeter.ac.uk.",
    "employer": "",
    "country": "",
    "type": "PhD",
@@ -341,34 +335,6 @@
    "first_seen": "2026-11-26"
   },
   {
-   "id": "1c7979f42865",
-   "title": "Postdoc Faculty Graduate Students Research Assistants Field Assistants Other opportunities",
-   "employer": "",
-   "country": "",
-   "type": "Postdoc",
-   "deadline": null,
-   "posted": null,
-   "url": "https://behavecol.com/positions",
-   "source": "ISBE positions",
-   "source_url": "https://behavecol.com/positions",
-   "also_on": [],
-   "first_seen": "2026-11-26"
-  },
-  {
-   "id": "391fcdd6926d",
-   "title": "Recent news",
-   "employer": "",
-   "country": "",
-   "type": "Faculty",
-   "deadline": null,
-   "posted": null,
-   "url": "https://www.behavecol.com/positions",
-   "source": "ISBE positions",
-   "source_url": "https://behavecol.com/positions",
-   "also_on": [],
-   "first_seen": "2026-11-26"
-  },
-  {
    "id": "ab5f20d8a2a3",
    "title": "The Royal Veterinary College (RVC) and University of Exeter are partnering in the ‘Knowing Animals Leverhulme Doctoral Programme on Interdis",
    "employer": "",
@@ -383,8 +349,8 @@
    "first_seen": "2026-11-26"
   },
   {
-   "id": "e38714613222",
-   "title": "Theoreticians!",
+   "id": "46b3d5b0a67a",
+   "title": "Theoreticians! Postdoc job available to work with Bram Kuijper on a project led by Alex Thornton, also with myself and Andy Radford as co-in",
    "employer": "",
    "country": "",
    "type": "Postdoc",
@@ -481,8 +447,8 @@
    "first_seen": "2026-11-26"
   },
   {
-   "id": "96a41765b125",
-   "title": "🚨 Faculty Position - Please share!",
+   "id": "10ef5e07c862",
+   "title": "🚨 Faculty Position - Please share! We have an open rank faculty opening in cognition, broadly construed, within our wonderful community at @",
    "employer": "",
    "country": "",
    "type": "Faculty",
@@ -579,8 +545,8 @@
    "first_seen": "2026-11-26"
   },
   {
-   "id": "4aeb46066536",
-   "title": "🦌🐺 New #PhD position!",
+   "id": "74f92a5b4137",
+   "title": "🦌🐺 New #PhD position! Behavioural and Physiological Responses of Red Deer to the Risk of Predation by Grey Wolves Interested in mammal behav",
    "employer": "",
    "country": "",
    "type": "PhD",
