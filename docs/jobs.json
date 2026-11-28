@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-27T06:12+00:00",
- "count": 90,
+ "updated": "2026-11-28T06:09+00:00",
+ "count": 89,
  "sources": [
   {
    "source": "ISAE",
@@ -46,20 +46,6 @@
   }
  ],
  "jobs": [
-  {
-   "id": "8faa146cc7d8",
-   "title": "Registered Veterinary Nurse (Spay & Neuter Clinic)",
-   "employer": "University of Surrey",
-   "country": "UK",
-   "type": "Veterinary",
-   "deadline": "2026-11-27",
-   "posted": null,
-   "url": "https://jobs.surrey.ac.uk/Vacancy.aspx?ref=030126-R2",
-   "source": "AWRN jobs",
-   "source_url": "https://awrn.co.uk/animal-welfare-jobs/",
-   "also_on": [],
-   "first_seen": "2026-11-27"
-  },
   {
    "id": "794536e72320",
    "title": "Research Fellow – Bioinformatics and Data Sciences",
